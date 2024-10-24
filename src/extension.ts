@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import {createFolder, isFolderExists} from "./project-folder";
-import {createProject} from "./create-project";
+import { createFolder, isFolderExists } from './project-folder';
+import { createProject } from './create-project';
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "tex-project-manager" is now active!');
@@ -14,8 +14,9 @@ export function activate(context: vscode.ExtensionContext) {
 			if (!isFolderExists()) {
 				createFolder();
 			}
-			
-			createProject(projectName);
+
+			const projectFolderPath = createProject(projectName);
+			vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectFolderPath), { forceReuseWindow: true });
 		} else {
 			vscode.window.showErrorMessage('No folder name provided');
 			console.error('No folder name provided');
