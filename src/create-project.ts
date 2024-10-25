@@ -1,13 +1,15 @@
 import * as fs from 'fs';
-import * as vscode from 'vscode';
 import * as path from 'path';
-import * as os from 'os';
 
-export function createProject(name: string): string {
-    const config = vscode.workspace.getConfiguration('texProjectManager');
-    let projectPath = config.get<string>('projectPath') || '~/tex_projects';
-    projectPath = projectPath.replace('~', os.homedir());
-    const projectFolderPath = path.join(projectPath, name);
-    fs.mkdirSync(projectFolderPath, { recursive: true });
-    return projectFolderPath;
+export function getFullProjectPath(name: string, basePath: string): string {
+    return path.join(basePath, name);
+}
+
+export function createProject(projectPath: string): string {
+    fs.mkdirSync(projectPath, { recursive: true });
+    return projectPath;
+}
+
+export function isFolderExists(projectPath: string): boolean {
+    return fs.existsSync(projectPath);
 }

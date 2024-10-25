@@ -2,7 +2,7 @@
   "name": "tex-project-manager",
   "displayName": "TeX project manager",
   "description": "",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.94.0"
   },
@@ -27,6 +27,12 @@
       {
         "command": "tex-project-manager.createProject",
         "title": "Create TeX project"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "tex-project-manager.createProject",
+        "key": "ctrl+alt+c"
       }
     ]
   },
