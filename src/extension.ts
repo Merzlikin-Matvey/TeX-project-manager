@@ -12,7 +12,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 		const namePick = { label: '$(pencil) Enter Project Name', description: 'Type the name of the new project' };
 		const folderPick = { label: '$(file-directory) Select Folder', description: `Default folder: ${defaultFolderPath}` };
-		const createProjectPick = { label: 'Create project' };
+		const createProjectPick = { label: '$(debug-start) Create project' };
+
+    const openExistingProjectPick = { label: 'Open existing project' };
+    const changeProjectParametersPick = { label: 'Change project parameters' };
 
 		let folderUri: vscode.Uri | undefined = vscode.Uri.file(defaultFolderPath);
 		let projectName: string | undefined;
@@ -37,18 +40,37 @@ export function activate(context: vscode.ExtensionContext) {
 					const fullProjectPath = getFullProjectPath(projectName, folderUri.fsPath);
 					if (isFolderExists(fullProjectPath)) {
 						vscode.window.showErrorMessage(`Project ${projectName} already exists at ${fullProjectPath}`);
-						console.error(`Project ${projectName} already exists at ${fullProjectPath}`);
-						break;
-					}
-					createProject(fullProjectPath);
-					if (isFolderExists(fullProjectPath)) {
-						vscode.window.showInformationMessage(`Project ${projectName} created at ${fullProjectPath}`);
-						await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(fullProjectPath), { forceNewWindow: false });
+            selected = await vscode.window.showQuickPick([openExistingProjectPick, changeProjectParametersPick], {
+              placeHolder: `Project ${projectName} already exists. Select an option`,
+              ignoreFocusOut: true
+            });
+
+            if (selected === openExistingProjectPick) {
+              vscode.window.showInformationMessage(`Opening project ${projectName} at ${fullProjectPath}`);
+              await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(fullProjectPath), { forceNewWindow: false });
+              break;
+            } else if (selected === changeProjectParametersPick) {
+              projectName = undefined;
+              folderUri = vscode.Uri.file(defaultFolderPath);
+
+              namePick.description = `Type the name of the new project: ${projectName}`;
+              folderPick.description = `Default folder: ${defaultFolderPath}`;
+            } else {
+              break;
+            }
+
 					} else {
-						vscode.window.showErrorMessage(`Failed to create project ${projectName}`);
-						console.error(`Failed to create project ${projectName}`);
-					}
-					break;
+            createProject(fullProjectPath);
+            if (isFolderExists(fullProjectPath)) {
+              vscode.window.showInformationMessage(`Project ${projectName} created at ${fullProjectPath}`);
+              await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(fullProjectPath), { forceNewWindow: false });
+            } else {
+              vscode.window.showErrorMessage(`Failed to create project ${projectName}`);
+              console.error(`Failed to create project ${projectName}`);
+            }
+            break;
+          }
+
 				}
 			} else if (selected === folderPick) {
 				const selectedFolderUri = await vscode.window.showOpenDialog({
