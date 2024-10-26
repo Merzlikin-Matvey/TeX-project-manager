@@ -2,9 +2,9 @@ import * as vscode from 'vscode';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
+import { exec } from 'child_process';
 import { createProject } from './create-project';
-import {getTemplatesPath, getTemplateNames, createTemplateFolder, addDefaultTemplate} from './templates';
-
+import { getTemplatesPath, getTemplateNames, createTemplateFolder, addDefaultTemplate } from './templates';
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "tex-project-manager" is now active!');
@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		let folderUri: vscode.Uri | undefined = vscode.Uri.file(defaultFolderPath);
 		let projectName: string | undefined;
-    let templateName: string | undefined = "default";
+		let templateName: string | undefined = "default";
 
 		addDefaultTemplate();
 
@@ -28,6 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const openExistingProjectPick = { label: 'Open existing project' };
 		const changeProjectParametersPick = { label: 'Change project parameters' };
 
+		const addTemplatePick = { label: '$(add) Add Template' };
 
 		while (true) {
 			let selected;
@@ -99,28 +100,32 @@ export function activate(context: vscode.ExtensionContext) {
 					namePick.description = `Project name: ${projectName}`;
 					vscode.window.showInformationMessage(`Project name: ${projectName}`);
 				} else {
-          vscode.window.showErrorMessage('No project name provided');
-          console.error('No project name provided');
-        }
-      } else if (selected === templatePick) {
-        let templatePath = getTemplatesPath();
+					vscode.window.showErrorMessage('No project name provided');
+					console.error('No project name provided');
+				}
+			} else if (selected === templatePick) {
+				let templatePath = getTemplatesPath();
 
-        if (!fs.existsSync(templatePath)) { createTemplateFolder(); }
+				if (!fs.existsSync(templatePath)) { createTemplateFolder(); }
 
-        let templates = getTemplateNames();
-        const selectedTemplate = await vscode.window.showQuickPick(templates, {
-          placeHolder: 'Select a template',
-          ignoreFocusOut: true
-        });
+				let templates = getTemplateNames();
+				templates.push(addTemplatePick);
+				const selectedTemplate = await vscode.window.showQuickPick(templates, {
+					placeHolder: 'Select a template',
+					ignoreFocusOut: true
+				});
 
-        if (selectedTemplate) {
-          templateName = selectedTemplate.label;
-          templatePick.description = `Selected template: ${templateName}`;
-          vscode.window.showInformationMessage(`Selected template: ${templateName}`);
-        } else {
-          vscode.window.showErrorMessage('No template selected');
-          console.error('No template selected');
-        }
+				if (selectedTemplate === addTemplatePick) {
+					vscode.window.showInformationMessage(`Opening folder with templates: ${templatePath}`);
+					exec(`explorer ${templatePath.replace(/\//g, '\\')}`);
+				} else if (selectedTemplate) {
+					templateName = selectedTemplate.label;
+					templatePick.description = `Selected template: ${templateName}`;
+					vscode.window.showInformationMessage(`Selected template: ${templateName}`);
+				} else {
+					vscode.window.showErrorMessage('No template selected');
+					console.error('No template selected');
+				}
 			} else { break; }
 		}
 	});
