@@ -430,3 +430,6 @@ dist
 # IDE
 .idea/
 .vscode/
+
+# Binary files
+*.vsix
