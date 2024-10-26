@@ -20,6 +20,11 @@
           "type": "string",
           "default": "~/tex_projects",
           "description": "Path to the folder where projects will be created"
+        },
+        "texProjectManager.templatesPath": {
+          "type": "string",
+          "default": "~/tex_templates",
+          "description": "Path to the folder where templates are stored"
         }
       }
     },

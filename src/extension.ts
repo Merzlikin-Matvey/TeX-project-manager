@@ -1,6 +1,10 @@
 import * as vscode from 'vscode';
-import { createProject, isFolderExists, getFullProjectPath } from './create-project';
 import * as os from 'os';
+import * as fs from 'fs';
+import * as path from 'path';
+import { createProject } from './create-project';
+import {getTemplatesPath, getTemplateNames, createTemplateFolder, addDefaultTemplate} from './templates';
+
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "tex-project-manager" is now active!');
@@ -10,67 +14,63 @@ export function activate(context: vscode.ExtensionContext) {
 		let defaultFolderPath = config.get<string>('projectPath') || '~/tex_projects';
 		defaultFolderPath = defaultFolderPath.replace('~', os.homedir());
 
-		const namePick = { label: '$(pencil) Enter Project Name', description: 'Type the name of the new project' };
-		const folderPick = { label: '$(file-directory) Select Folder', description: `Default folder: ${defaultFolderPath}` };
-		const createProjectPick = { label: '$(debug-start) Create project' };
-
-    const openExistingProjectPick = { label: 'Open existing project' };
-    const changeProjectParametersPick = { label: 'Change project parameters' };
-
 		let folderUri: vscode.Uri | undefined = vscode.Uri.file(defaultFolderPath);
 		let projectName: string | undefined;
+    let templateName: string | undefined = "default";
+
+		addDefaultTemplate();
+
+		const namePick = { label: '$(pencil) Enter Project Name', description: 'Type the name of the new project' };
+		const folderPick = { label: '$(file-directory) Select Folder', description: `Default folder: ${defaultFolderPath}` };
+		const templatePick = { label: '$(file-code) Select Template', description: `Default template: ${templateName}` };
+		const createProjectPick = { label: '$(debug-start) Create project' };
+
+		const openExistingProjectPick = { label: 'Open existing project' };
+		const changeProjectParametersPick = { label: 'Change project parameters' };
 
 
 		while (true) {
 			let selected;
+			let actualOptions;
 			if (projectName) {
-				selected = await vscode.window.showQuickPick([createProjectPick, namePick, folderPick], {
-					placeHolder: 'Select an option',
-					ignoreFocusOut: true
-				});
+				actualOptions = [createProjectPick, namePick, templatePick, folderPick];
 			} else {
-				selected = await vscode.window.showQuickPick([namePick, folderPick], {
-					placeHolder: 'Select an option',
-					ignoreFocusOut: true
-				});
+				actualOptions = [namePick, templatePick, folderPick];
 			}
+			selected = await vscode.window.showQuickPick(actualOptions, {
+				placeHolder: 'Select an option',
+				ignoreFocusOut: true
+			});
 
 			if (selected == createProjectPick) {
-				if (projectName && folderUri) {
-					const fullProjectPath = getFullProjectPath(projectName, folderUri.fsPath);
-					if (isFolderExists(fullProjectPath)) {
+				if (projectName && folderUri && templateName) {
+					const fullProjectPath = path.join(folderUri.fsPath, projectName);
+
+					if (fs.existsSync(fullProjectPath)) {
+						console.log("exists");
 						vscode.window.showErrorMessage(`Project ${projectName} already exists at ${fullProjectPath}`);
-            selected = await vscode.window.showQuickPick([openExistingProjectPick, changeProjectParametersPick], {
-              placeHolder: `Project ${projectName} already exists. Select an option`,
-              ignoreFocusOut: true
-            });
+						selected = await vscode.window.showQuickPick([openExistingProjectPick, changeProjectParametersPick], {
+							placeHolder: `Project ${projectName} already exists. Select an option`,
+							ignoreFocusOut: true
+						});
 
-            if (selected === openExistingProjectPick) {
-              vscode.window.showInformationMessage(`Opening project ${projectName} at ${fullProjectPath}`);
-              await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(fullProjectPath), { forceNewWindow: false });
-              break;
-            } else if (selected === changeProjectParametersPick) {
-              projectName = undefined;
-              folderUri = vscode.Uri.file(defaultFolderPath);
+						while (true) {
+							if (selected === openExistingProjectPick) {
+								vscode.window.showInformationMessage(`Opening project ${projectName} at ${fullProjectPath}`);
+								await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(fullProjectPath), { forceNewWindow: false });
+								break;
+							} else if (selected === changeProjectParametersPick) {
+								projectName = undefined;
+								folderUri = vscode.Uri.file(defaultFolderPath);
 
-              namePick.description = `Type the name of the new project: ${projectName}`;
-              folderPick.description = `Default folder: ${defaultFolderPath}`;
-            } else {
-              break;
-            }
+								namePick.description = `Type the name of the new project: ${projectName}`;
+								folderPick.description = `Default folder: ${defaultFolderPath}`;
+							} else {
+								break;
+							}
+						}
 
-					} else {
-            createProject(fullProjectPath);
-            if (isFolderExists(fullProjectPath)) {
-              vscode.window.showInformationMessage(`Project ${projectName} created at ${fullProjectPath}`);
-              await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(fullProjectPath), { forceNewWindow: false });
-            } else {
-              vscode.window.showErrorMessage(`Failed to create project ${projectName}`);
-              console.error(`Failed to create project ${projectName}`);
-            }
-            break;
-          }
-
+					} else { createProject(projectName, folderUri, templateName); }
 				}
 			} else if (selected === folderPick) {
 				const selectedFolderUri = await vscode.window.showOpenDialog({
@@ -99,14 +99,29 @@ export function activate(context: vscode.ExtensionContext) {
 					namePick.description = `Project name: ${projectName}`;
 					vscode.window.showInformationMessage(`Project name: ${projectName}`);
 				} else {
-					vscode.window.showErrorMessage('No project name provided');
-					console.error('No project name provided');
-				}
-			} else {
-				vscode.window.showErrorMessage('No option selected');
-				console.error('No option selected');
-				break;
-			}
+          vscode.window.showErrorMessage('No project name provided');
+          console.error('No project name provided');
+        }
+      } else if (selected === templatePick) {
+        let templatePath = getTemplatesPath();
+
+        if (!fs.existsSync(templatePath)) { createTemplateFolder(); }
+
+        let templates = getTemplateNames();
+        const selectedTemplate = await vscode.window.showQuickPick(templates, {
+          placeHolder: 'Select a template',
+          ignoreFocusOut: true
+        });
+
+        if (selectedTemplate) {
+          templateName = selectedTemplate.label;
+          templatePick.description = `Selected template: ${templateName}`;
+          vscode.window.showInformationMessage(`Selected template: ${templateName}`);
+        } else {
+          vscode.window.showErrorMessage('No template selected');
+          console.error('No template selected');
+        }
+			} else { break; }
 		}
 	});
 
