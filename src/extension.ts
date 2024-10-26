@@ -57,7 +57,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 						while (true) {
 							if (selected === openExistingProjectPick) {
-								vscode.window.showInformationMessage(`Opening project ${projectName} at ${fullProjectPath}`);
+								if (projectName && fullProjectPath) {
+									vscode.window.showInformationMessage(`Opening project ${projectName} at ${fullProjectPath}`);
+								} else {
+									vscode.window.showErrorMessage('No project name or path provided');
+									console.error('No project name or path provided');
+								}
 								await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(fullProjectPath), { forceNewWindow: false });
 								break;
 							} else if (selected === changeProjectParametersPick) {
