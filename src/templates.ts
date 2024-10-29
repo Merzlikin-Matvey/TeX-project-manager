@@ -19,10 +19,10 @@ export function getTemplateNames() {
         .map(template => ({ label: path.basename(template, '.tex') }));
 }
 
-export function moveTemplate(templateName: string, projectPath: string) {
+export function moveTemplate(templateName: string, projectPath: string, projectName: string) {
     const templatesPath = getTemplatesPath();
     const templatePath = path.join(templatesPath, `${templateName}.tex`);
-    const destinationPath = path.join(projectPath, `${templateName}.tex`);
+    const destinationPath = path.join(projectPath, `${projectName}.tex`);
 
     fs.copyFileSync(templatePath, destinationPath);
 

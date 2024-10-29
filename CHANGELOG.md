@@ -1,9 +1,5 @@
-# Change Log
-
-All notable changes to the "tex-project-manager" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+## [0.1.0] - 2024-10-26
+- Первый стабильный релиз
+- Сочетанием клавиш `Ctrl+Alt+C` можно создать новый проект
+- Есть возможность менять имя, шаблон и папку с проектами
+- Можно самому добавить свой шаблон

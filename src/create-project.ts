@@ -29,13 +29,19 @@ export async function createProject(projectName: string, folderUri: vscode.Uri, 
     }
 
     fs.mkdirSync(fullProjectPath, { recursive: true });
-    moveTemplate(templateName, fullProjectPath);
+    moveTemplate(templateName, fullProjectPath, projectName);
 
     if (!fs.existsSync(fullProjectPath)) {
         vscode.window.showInformationMessage(`Project ${projectName} created at ${fullProjectPath}`);
     } else {
         vscode.window.showErrorMessage(`Failed to create project ${projectName} at ${fullProjectPath}`);
     }
+    const destinationPath = path.join(fullProjectPath, `${projectName}.tex`);
+    if (fs.existsSync(destinationPath)) {
+        vscode.window.showInformationMessage(`Project ${projectName} created at ${fullProjectPath}`);
+        await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(fullProjectPath), { forceNewWindow: false });
 
-    vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(fullProjectPath), { forceNewWindow: false });
+    } else {
+        vscode.window.showErrorMessage(`Failed to create project ${projectName} at ${fullProjectPath}`);
+    }
 }
