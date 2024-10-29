@@ -3,7 +3,7 @@
   "displayName": "TeX project manager",
   "description": "",
   "publisher": "Matvey",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "engines": {
     "vscode": "^1.94.0"
   },
