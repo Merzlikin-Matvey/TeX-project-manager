@@ -1,30 +1,38 @@
-## Функции
+# TeX Project Manager
 
-- Создание новых проектов TeX.
-- Выбор шаблонов для проектов.
-- Открытие существующих проектов (скоро).
+![VS Code](https://img.shields.io/badge/VS%20Code-1.94.0%2B-blue)
+![Node](https://img.shields.io/badge/Node-18%2B-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-## Требования
 
-- Visual Studio Code версии 1.94.0 или выше.
-- Node.js версии 18 или выше.
 
-## Настройки расширения
+## Features
 
-Это расширение добавляет следующие настройки:
+- Creating new TeX projects.
+- Selecting templates for projects.
+- Opening existing projects (coming soon).
 
-* `texProjectManager.projectPath`: Путь к папке, где будут создаваться проекты.
-* `texProjectManager.templatesPath`: Путь к папке, где хранятся шаблоны.
+## Requirements
 
-## Примечания к выпуску
+- Visual Studio Code version 1.94.0 or higher.
+- Node.js version 18 or higher.
+
+## Extension Settings
+
+This extension adds the following settings:
+
+* `texProjectManager.projectPath`: Path to the folder where projects will be created.
+* `texProjectManager.templatesPath`: Path to the folder where templates are stored.
+
+## Release Notes
 
 ### 0.1.0
 
-- Первый стабильный релиз
-- Сочетанием клавиш `Ctrl+Alt+C` можно создать новый проект
-- Есть возможность менять имя, шаблон и папку с проектами
-- Можно самому добавить свой шаблон
+- First stable release
+- Use the `Ctrl+Alt+C` shortcut to create a new project
+- Ability to change the name, template, and project folder
+- You can add your own template
 
 ---
 
-**Наслаждайтесь!**
+**Enjoy!**

@@ -1,5 +1,5 @@
 ## [0.1.0] - 2024-10-26
-- Первый стабильный релиз
-- Сочетанием клавиш `Ctrl+Alt+C` можно создать новый проект
-- Есть возможность менять имя, шаблон и папку с проектами
-- Можно самому добавить свой шаблон
+- First stable release
+- Use the `Ctrl+Alt+C` shortcut to create a new project
+- Ability to change the name, template, and project folder
+- You can add your own template
