@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import { moveTemplate } from "./templates";
 
 
-export function createProject(projectName: string, folderUri: vscode.Uri, templateName: string) {
+export async function createProject(projectName: string, folderUri: vscode.Uri, templateName: string) {
     if (!projectName) {
         console.log('Project name is not defined');
         return;

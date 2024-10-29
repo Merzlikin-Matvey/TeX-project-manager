@@ -32,3 +32,12 @@ jobs:
 
       - name: Run tests
         run: xvfb-run --auto-servernum npm test
+
+      - name: Install vsce
+        run: npm install -g vsce
+
+      - name: Publish to Visual Studio Marketplace
+        run: vsce publish
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+          PUBLISHER_NAME: ${{ secrets.PUBLISHER_NAME }}
