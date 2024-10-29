@@ -36,6 +36,9 @@ jobs:
       - name: Install vsce
         run: npm install -g vsce
 
+      - name: Grant execute permission for login-and-publish.sh
+        run: chmod +x ./login-and-publish.sh
+
       - name: Login and publish to Visual Studio Marketplace
         run: ./login-and-publish.sh
         env:
