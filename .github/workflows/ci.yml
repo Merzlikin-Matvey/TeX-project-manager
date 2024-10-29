@@ -36,8 +36,8 @@ jobs:
       - name: Install vsce
         run: npm install -g vsce
 
-      - name: Publish to Visual Studio Marketplace
-        run: vsce publish
+      - name: Login and publish to Visual Studio Marketplace
+        run: ./login-and-publish.sh
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
           PUBLISHER_NAME: ${{ secrets.PUBLISHER_NAME }}
