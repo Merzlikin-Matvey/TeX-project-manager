@@ -14,7 +14,18 @@ export function activate(context: vscode.ExtensionContext) {
 		let defaultFolderPath = config.get<string>('projectPath') || '~/tex_projects';
 		defaultFolderPath = defaultFolderPath.replace('~', os.homedir());
 
-		let folderUri: vscode.Uri | undefined = vscode.Uri.file(defaultFolderPath);
+		if (!fs.existsSync(defaultFolderPath)) {
+			fs.mkdirSync(defaultFolderPath, { recursive: true });
+			vscode.window.showInformationMessage(`Created projects folder: ${defaultFolderPath}`);
+		}
+
+		const templatesPath = getTemplatesPath();
+		if (!fs.existsSync(templatesPath)) {
+			createTemplateFolder();
+			addDefaultTemplate();
+		}
+
+			let folderUri: vscode.Uri | undefined = vscode.Uri.file(defaultFolderPath);
 		let projectName: string | undefined;
 		let templateName: string | undefined = "default";
 
