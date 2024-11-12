@@ -8,6 +8,7 @@ export function getTemplatesPath() {
 }
 
 export function createTemplateFolder() {
+
     const templatesPath = getTemplatesPath();
     fs.mkdirSync(templatesPath, { recursive: true });
 }

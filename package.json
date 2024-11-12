@@ -3,7 +3,7 @@
   "displayName": "TeX project manager",
   "description": "",
   "publisher": "Matvey",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "engines": {
     "vscode": "^1.94.0"
   },
@@ -37,12 +37,20 @@
       {
         "command": "tex-project-manager.createProject",
         "title": "Create TeX project"
+      },
+      {
+          "command": "tex-project-manager.openProjectsList",
+          "title": "Open TeX projects list"
       }
     ],
     "keybindings": [
       {
         "command": "tex-project-manager.createProject",
         "key": "ctrl+alt+c"
+      },
+      {
+          "command": "tex-project-manager.openProjectsList",
+          "key": "ctrl+alt+o"
       }
     ]
   },

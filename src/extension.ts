@@ -5,9 +5,12 @@ import * as path from 'path';
 import { exec } from 'child_process';
 import { createProject } from './create-project';
 import { getTemplatesPath, getTemplateNames, createTemplateFolder, addDefaultTemplate } from './templates';
+import { Project } from './project';
+import {createDatabase, getProject, getProjects, updateProject} from "./database";
 
 export function activate(context: vscode.ExtensionContext) {
-	console.log('Congratulations, your extension "tex-project-manager" is now active!');
+	console.log('Congratulations, "tex-project-manager" is now active!');
+	createDatabase();
 
 	const disposable = vscode.commands.registerCommand('tex-project-manager.createProject', async () => {
 		const config = vscode.workspace.getConfiguration('texProjectManager');
@@ -40,6 +43,8 @@ export function activate(context: vscode.ExtensionContext) {
 		const changeProjectParametersPick = { label: 'Change project parameters' };
 
 		const addTemplatePick = { label: '$(add) Add Template' };
+
+		let project;
 
 		while (true) {
 			let selected;
@@ -74,7 +79,14 @@ export function activate(context: vscode.ExtensionContext) {
 									vscode.window.showErrorMessage('No project name or path provided');
 									console.error('No project name or path provided');
 								}
-								await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(fullProjectPath), { forceNewWindow: false });
+								const project = getProject(fullProjectPath);
+								if (project) {
+									project.updateLastOpened();
+									updateProject(project);
+								} else {
+									vscode.window.showErrorMessage(`Project at ${fullProjectPath} not found in the database`);
+								}
+								await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(fullProjectPath), {forceNewWindow: false});
 								break;
 							} else if (selected === changeProjectParametersPick) {
 								projectName = undefined;
@@ -87,7 +99,9 @@ export function activate(context: vscode.ExtensionContext) {
 							}
 						}
 
-					} else { createProject(projectName, folderUri, templateName); }
+					} else {
+						createProject(new Project(projectName, folderUri.fsPath, templateName));
+					}
 				}
 			} else if (selected === folderPick) {
 				const selectedFolderUri = await vscode.window.showOpenDialog({
@@ -122,7 +136,9 @@ export function activate(context: vscode.ExtensionContext) {
 			} else if (selected === templatePick) {
 				let templatePath = getTemplatesPath();
 
-				if (!fs.existsSync(templatePath)) { createTemplateFolder(); }
+				if (!fs.existsSync(templatePath)) {
+					createTemplateFolder();
+				}
 
 				let templates = getTemplateNames();
 				templates.push(addTemplatePick);
@@ -142,9 +158,32 @@ export function activate(context: vscode.ExtensionContext) {
 					vscode.window.showErrorMessage('No template selected');
 					console.error('No template selected');
 				}
-			} else { break; }
+			} else {
+				break;
+			}
 		}
 	});
+
+	const disposable2 = vscode.commands.registerCommand('tex-project-manager.openProjectsList', async () => {
+		const projects = getProjects();
+		const projectNames = Object.keys(projects);
+		const selectedProject = await vscode.window.showQuickPick(projectNames, {
+			placeHolder: 'Select a project to open',
+			ignoreFocusOut: true
+		});
+
+		if (selectedProject) {
+			const project = getProject(selectedProject);
+			if (project) {
+				project.updateLastOpened();
+				updateProject(project);
+			} else {
+				vscode.window.showErrorMessage(`Project ${selectedProject} not found in the database`);
+			}
+			await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(selectedProject), {forceNewWindow: false});
+		}
+	}
+	);
 
 	context.subscriptions.push(disposable);
 }

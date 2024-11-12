@@ -2,46 +2,41 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from "vscode";
 import { moveTemplate } from "./templates";
+import { Project } from "./project";
+import { addProject } from "./database";
 
-
-export async function createProject(projectName: string, folderUri: vscode.Uri, templateName: string) {
-    if (!projectName) {
+export async function createProject(project: Project) {
+    if (!project.name) {
         console.log('Project name is not defined');
         return;
-    } else if (!folderUri) {
-        console.log('Folder URI is not defined');
+    } else if (!project.path) {
+        console.log('Project path is not defined');
         return;
-    } else if (!templateName) {
+    } else if (!project.template) {
         console.log('Template name is not defined');
         return;
     }
 
-    if (!fs.existsSync(folderUri.fsPath)) {
-        console.log('Folder does not exist');
+
+    project = new Project(project.name, project.path, project.template);
+
+
+    if (fs.existsSync(project.full_path)) {
+        console.log(`Project ${project.name} already exists at ${project.full_path}`);
         return;
     }
 
-    const fullProjectPath = path.join(folderUri.fsPath, projectName);
-    console.log(fullProjectPath)
-    if (fs.existsSync(fullProjectPath)) {
-        console.log(`Project ${projectName} already exists at ${fullProjectPath}`);
-        return;
-    }
+    fs.mkdirSync(project.full_path, { recursive: true });
+    moveTemplate(project.template, project.full_path, project.name);
+    addProject(project);
 
-    fs.mkdirSync(fullProjectPath, { recursive: true });
-    moveTemplate(templateName, fullProjectPath, projectName);
 
-    if (!fs.existsSync(fullProjectPath)) {
-        vscode.window.showInformationMessage(`Project ${projectName} created at ${fullProjectPath}`);
-    } else {
-        vscode.window.showErrorMessage(`Failed to create project ${projectName} at ${fullProjectPath}`);
-    }
-    const destinationPath = path.join(fullProjectPath, `${projectName}.tex`);
-    if (fs.existsSync(destinationPath)) {
-        vscode.window.showInformationMessage(`Project ${projectName} created at ${fullProjectPath}`);
-        await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(fullProjectPath), { forceNewWindow: false });
+    if (fs.existsSync(project.full_tex_file_path)) {
+        vscode.window.showInformationMessage(`Project ${project.name} created at ${project.full_path}`);
+        await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(project.full_path), { forceNewWindow: false });
 
     } else {
-        vscode.window.showErrorMessage(`Failed to create project ${projectName} at ${fullProjectPath}`);
+        vscode.window.showErrorMessage(`Failed to create project ${project.name} at ${project.full_path}`);
     }
+
 }
