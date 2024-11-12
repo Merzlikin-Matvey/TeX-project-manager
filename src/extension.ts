@@ -44,7 +44,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 		const addTemplatePick = { label: '$(add) Add Template' };
 
-		let project;
 
 		while (true) {
 			let selected;
@@ -59,7 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
 				ignoreFocusOut: true
 			});
 
-			if (selected == createProjectPick) {
+			if (selected === createProjectPick) {
 				if (projectName && folderUri && templateName) {
 					const fullProjectPath = path.join(folderUri.fsPath, projectName);
 
@@ -166,26 +165,32 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const disposable2 = vscode.commands.registerCommand('tex-project-manager.openProjectsList', async () => {
 		const projects = getProjects();
-		const projectNames = Object.keys(projects);
-		const selectedProject = await vscode.window.showQuickPick(projectNames, {
+		const projectItems = Object.keys(projects).map(key => ({
+			label: projects[key].name,
+			description: projects[key].full_path
+		}));
+
+		const selectedProject = await vscode.window.showQuickPick(projectItems, {
 			placeHolder: 'Select a project to open',
 			ignoreFocusOut: true
 		});
 
 		if (selectedProject) {
-			const project = getProject(selectedProject);
+			const project = getProject(selectedProject.description);
 			if (project) {
 				project.updateLastOpened();
 				updateProject(project);
+				await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(project.full_path), { forceNewWindow: false });
 			} else {
-				vscode.window.showErrorMessage(`Project ${selectedProject} not found in the database`);
+				vscode.window.showErrorMessage(`Project at ${selectedProject.description} not found in the database`);
 			}
-			await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(selectedProject), {forceNewWindow: false});
 		}
-	}
-	);
+	});
+
+	context.subscriptions.push(disposable2);
 
 	context.subscriptions.push(disposable);
+	context.subscriptions.push(disposable2);
 }
 
 export function deactivate() {}
