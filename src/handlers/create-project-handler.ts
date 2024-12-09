@@ -1,5 +1,4 @@
 import vscode from "vscode";
-import os from "os";
 import fs from "fs";
 import {addDefaultTemplate, createTemplateFolder, getTemplateNames, getTemplatesPath} from "../templates";
 import path from "path";
@@ -7,11 +6,11 @@ import {getProject, updateProject} from "../database";
 import {createProject} from "../create-project";
 import {Project} from "../project";
 import {exec} from "child_process";
+import {getDefaultFolderPath, getDefaultTemplate} from "../user-config";
 
 export async function handleCreateProjectCommand() {
-  const config = vscode.workspace.getConfiguration('texProjectManager');
-  let defaultFolderPath = config.get<string>('projectPath') || '~/tex_projects';
-  defaultFolderPath = defaultFolderPath.replace('~', os.homedir());
+  let defaultFolderPath = getDefaultFolderPath();
+  let defaultTemplate = getDefaultTemplate();
 
   if (!fs.existsSync(defaultFolderPath)) {
     fs.mkdirSync(defaultFolderPath, { recursive: true });
@@ -26,9 +25,10 @@ export async function handleCreateProjectCommand() {
 
   let folderUri: vscode.Uri | undefined = vscode.Uri.file(defaultFolderPath);
   let projectName: string | undefined;
-  let templateName: string | undefined = "default";
+  let templateName: string | undefined = defaultTemplate;
 
   addDefaultTemplate();
+
 
   const namePick = { label: '$(pencil) Enter Project Name', description: 'Type the name of the new project' };
   const folderPick = { label: '$(file-directory) Select Folder', description: `Default folder: ${defaultFolderPath}` };
