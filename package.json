@@ -3,7 +3,7 @@
   "displayName": "TeX project manager",
   "description": "Extension for managing LaTeX projects in VS Code",
   "publisher": "Matvey",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "engines": {
     "vscode": "^1.94.0"
   },

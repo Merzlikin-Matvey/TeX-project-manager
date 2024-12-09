@@ -9,7 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
 	createDatabase();
 
 	const disposable = vscode.commands.registerCommand('tex-project-manager.createProject', handleCreateProjectCommand);
-	const disposable2 = vscode.commands.registerCommand('tex-project-manager.openProject', handleOpenProjectsListCommand);
+	const disposable2 = vscode.commands.registerCommand('tex-project-manager.openProjectsList', handleOpenProjectsListCommand);
 
 	context.subscriptions.push(disposable2);
 
