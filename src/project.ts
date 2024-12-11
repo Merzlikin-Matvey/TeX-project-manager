@@ -9,12 +9,12 @@ export class Project {
   template: string;
   last_opened: Date;
 
-  constructor(projectName: string, projectPath: string, projectTemplate: string) {
+  constructor(projectName: string, projectPath: string, projectTemplate: string, lastOpened?: Date) {
     this.name = projectName;
     this.path = projectPath;
     this.tex_file_name = `${projectName}.tex`;
     this.template = projectTemplate;
-    this.last_opened = new Date();
+    this.last_opened = lastOpened || new Date();
 
     this.full_path = path.join(this.path, this.name);
     this.full_tex_file_path = path.join(this.full_path, this.tex_file_name);
@@ -22,5 +22,6 @@ export class Project {
 
   updateLastOpened() {
     this.last_opened = new Date();
+    console.log("UPDATE");
   }
 }

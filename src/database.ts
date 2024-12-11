@@ -23,7 +23,7 @@ export function getProject(projectPath: string): Project | undefined {
   const projects: Projects = JSON.parse(fs.readFileSync(databasePath, 'utf8'));
   const projectData = projects[projectPath];
   if (projectData) {
-    return new Project(projectData.name, projectData.path, projectData.template);
+    return new Project(projectData.name, projectData.path, projectData.template, projectData.last_opened);
   }
   return undefined;
 }

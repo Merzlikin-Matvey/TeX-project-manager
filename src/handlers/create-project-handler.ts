@@ -114,13 +114,14 @@ export async function handleCreateProjectCommand() {
         console.error('No folder selected');
       }
     } else if (selected === namePick) {
-      projectName = await vscode.window.showInputBox({
+      let newProjectName = await vscode.window.showInputBox({
         prompt: 'Enter the name of the project',
         placeHolder: 'Project Name',
         ignoreFocusOut: true
       });
 
-      if (projectName) {
+      if (newProjectName) {
+        projectName = newProjectName;
         namePick.description = `Project name: ${projectName}`;
         vscode.window.showInformationMessage(`Project name: ${projectName}`);
       } else {

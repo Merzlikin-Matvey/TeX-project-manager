@@ -5,8 +5,19 @@ export async function handleOpenProjectsListCommand() {
   const projects = getProjects();
   const projectItems = Object.keys(projects).map(key => ({
     label: projects[key].name,
-    description: projects[key].full_path
+    description: projects[key].full_path,
+    lastOpened: new Date(projects[key].last_opened)
   }));
+
+  projectItems.sort((a, b) => b.lastOpened.getTime() - a.lastOpened.getTime());
+
+
+  projectItems.forEach(projectItem => {
+    const project = getProject(projectItem.description);
+    if (project) {
+      console.log(project.last_opened);
+    }
+  });
 
   const selectedProject = await vscode.window.showQuickPick(projectItems, {
     placeHolder: 'Select a project to open',
