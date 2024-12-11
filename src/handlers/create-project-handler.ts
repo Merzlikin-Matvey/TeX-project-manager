@@ -7,9 +7,10 @@ import {createProject} from "../create-project";
 import {Project} from "../project";
 import {exec} from "child_process";
 import {getDefaultFolderPath, getDefaultTemplate} from "../user-config";
+import os from "os";
 
 export async function handleCreateProjectCommand() {
-  let defaultFolderPath = getDefaultFolderPath();
+  let defaultFolderPath = getDefaultFolderPath().replace('~', os.homedir());
   let defaultTemplate = getDefaultTemplate();
 
   if (!fs.existsSync(defaultFolderPath)) {
@@ -29,7 +30,6 @@ export async function handleCreateProjectCommand() {
 
   addDefaultTemplate();
 
-
   const namePick = { label: '$(pencil) Enter Project Name', description: 'Type the name of the new project' };
   const folderPick = { label: '$(file-directory) Select Folder', description: `Default folder: ${defaultFolderPath}` };
   const templatePick = { label: '$(file-code) Select Template', description: `Default template: ${templateName}` };
@@ -39,7 +39,6 @@ export async function handleCreateProjectCommand() {
   const changeProjectParametersPick = { label: 'Change project parameters' };
 
   const addTemplatePick = { label: '$(add) Add Template' };
-
 
   while (true) {
     let selected;
