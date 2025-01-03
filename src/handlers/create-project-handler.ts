@@ -5,8 +5,13 @@ import os from "os";
 import { exec } from "child_process";
 import { Database } from "../database";
 import { Project } from "../project";
-import { addDefaultTemplate, createTemplateFolder, getTemplateNames, getTemplatesPath } from "../templates";
-import { getDefaultDatabasePath, getDefaultFolderPath, getDefaultTemplate } from "../user-config";
+import { TemplateManager } from "../templates";
+import {
+  getDefaultDatabasePath,
+  getDefaultFolderPath,
+  getDefaultTemplate,
+  getDefaultTemplatesPath
+} from "../user-config";
 
 export async function handleCreateProjectCommand() {
   const defaultFolderPath = getDefaultFolderPath().replace('~', os.homedir());
@@ -19,7 +24,8 @@ export async function handleCreateProjectCommand() {
   let projectName: string | undefined;
   let templateName: string | undefined = defaultTemplate;
 
-  addDefaultTemplate();
+  const templateManager = new TemplateManager();
+  templateManager.addDefaultTemplate();
 
   while (true) {
     const selected = await showQuickPickOptions(projectName, folderUri, templateName, defaultFolderPath);
@@ -46,10 +52,11 @@ function ensureFolderExists(folderPath: string) {
 }
 
 function ensureTemplatesExist() {
-  const templatesPath = getTemplatesPath();
+  const templatesPath = getDefaultTemplatesPath();
+  const templateManager = new TemplateManager();
   if (!fs.existsSync(templatesPath)) {
-    createTemplateFolder();
-    addDefaultTemplate();
+    templateManager.createTemplateFolder();
+    vscode.window.showInformationMessage(`Created templates folder: ${templatesPath}`);
   }
 }
 
@@ -137,12 +144,13 @@ async function enterProjectName() {
 }
 
 async function selectTemplate() {
-  const templatePath = getTemplatesPath();
+  const templateManager = new TemplateManager();
+  const templatePath = templateManager.getTemplatesPath();
   if (!fs.existsSync(templatePath)) {
-    createTemplateFolder();
+    templateManager.createTemplateFolder();
   }
 
-  const templates = getTemplateNames();
+  const templates = templateManager.getTemplateNames();
   templates.push({ label: '$(add) Add Template' });
   const selectedTemplate = await vscode.window.showQuickPick(templates, {
     placeHolder: 'Select a template',

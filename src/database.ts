@@ -6,7 +6,7 @@ export interface Projects {
 }
 
 export class Database {
-  private databasePath: string;
+  private readonly databasePath: string;
 
   constructor(databasePath: string) {
     this.databasePath = databasePath;
