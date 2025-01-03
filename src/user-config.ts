@@ -18,3 +18,8 @@ export function getDefaultTemplate(): string {
   const config = getUserConfig();
   return config.get<string>('defaultTemplate') || 'default';
 }
+
+export function getDefaultDatabasePath(): string {
+  const config = getUserConfig();
+  return config.get<string>('databasePath') || '~/tex_projects.json';
+}

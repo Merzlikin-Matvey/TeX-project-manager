@@ -1,8 +1,10 @@
-import {getProject, getProjects, updateProject} from "../database";
+import {Database} from "../database";
 import vscode from "vscode";
+import {getDefaultDatabasePath} from "../user-config";
 
 export async function handleOpenProjectsListCommand() {
-  const projects = getProjects();
+  const database = new Database(getDefaultDatabasePath());
+  const projects = database.getProjects();
   const projectItems = Object.keys(projects).map(key => ({
     label: projects[key].name,
     description: projects[key].full_path,
@@ -13,7 +15,7 @@ export async function handleOpenProjectsListCommand() {
 
 
   projectItems.forEach(projectItem => {
-    const project = getProject(projectItem.description);
+    const project = database.getProject(projectItem.description);
     if (project) {
       console.log(project.last_opened);
     }
@@ -25,10 +27,10 @@ export async function handleOpenProjectsListCommand() {
   });
 
   if (selectedProject) {
-    const project = getProject(selectedProject.description);
+    const project = database.getProject(selectedProject.description);
     if (project) {
       project.updateLastOpened();
-      updateProject(project);
+      database.updateProject(project);
       await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(project.full_path), { forceNewWindow: false });
     } else {
       vscode.window.showErrorMessage(`Project at ${selectedProject.description} not found in the database`);
