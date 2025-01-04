@@ -4,7 +4,7 @@ import * as os from 'os';
 import * as vscode from "vscode";
 
 export class TemplateManager {
-    private templatesPath: string;
+    private readonly templatesPath: string;
 
     constructor() {
         this.templatesPath = path.join(os.homedir(), 'tex_templates');

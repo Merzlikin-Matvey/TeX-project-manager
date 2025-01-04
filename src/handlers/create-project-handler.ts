@@ -7,7 +7,6 @@ import { Database } from "../database";
 import { Project } from "../project";
 import { TemplateManager } from "../templates";
 import {
-  getDefaultDatabasePath,
   getDefaultFolderPath,
   getDefaultTemplate,
   getDefaultTemplatesPath
@@ -99,7 +98,7 @@ async function handleExistingProject(fullProjectPath: string, projectName: strin
 }
 
 async function openExistingProject(fullProjectPath: string) {
-  const database = new Database(getDefaultDatabasePath());
+  const database = new Database();
   const project = database.getProject(fullProjectPath);
   if (project) {
     project.updateLastOpened();

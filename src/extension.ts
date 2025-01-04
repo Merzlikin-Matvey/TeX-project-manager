@@ -7,7 +7,7 @@ import {getDefaultDatabasePath} from "./user-config";
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, "tex-project-manager" is now active!');
-	const database = new Database(getDefaultDatabasePath());
+	const database = new Database();
 
 	const disposable = vscode.commands.registerCommand('tex-project-manager.createProject', handleCreateProjectCommand);
 	const disposable2 = vscode.commands.registerCommand('tex-project-manager.openProjectsList', handleOpenProjectsListCommand);

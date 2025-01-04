@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import { Project } from './project';
+import {getDefaultDatabasePath} from "./user-config";
 
 export interface Projects {
   [key: string]: Project;
@@ -8,8 +9,8 @@ export interface Projects {
 export class Database {
   private readonly databasePath: string;
 
-  constructor(databasePath: string) {
-    this.databasePath = databasePath;
+  constructor(databasePath?: string) {
+    this.databasePath = databasePath || getDefaultDatabasePath();
     this.createDatabase();
   }
 

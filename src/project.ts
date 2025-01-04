@@ -2,7 +2,6 @@ import * as path from 'path';
 import fs from "fs";
 import {TemplateManager} from "./templates";
 import {Database} from "./database";
-import {getDefaultDatabasePath} from "./user-config";
 import * as vscode from 'vscode';
 
 export class Project {
@@ -48,7 +47,7 @@ export class Project {
 
     fs.mkdirSync(this.full_path, { recursive: true });
     const templateManager = new TemplateManager();
-    const database = new Database(getDefaultDatabasePath());
+    const database = new Database();
     templateManager.moveTemplate(this.template, this.full_path, this.name);
     database.addProject(this);
 

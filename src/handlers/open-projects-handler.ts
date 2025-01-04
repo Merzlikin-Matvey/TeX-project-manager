@@ -1,9 +1,8 @@
 import {Database} from "../database";
 import vscode from "vscode";
-import {getDefaultDatabasePath} from "../user-config";
 
 export async function handleOpenProjectsListCommand() {
-  const database = new Database(getDefaultDatabasePath());
+  const database = new Database();
   const projects = database.getProjects();
   const projectItems = Object.keys(projects).map(key => ({
     label: projects[key].name,
