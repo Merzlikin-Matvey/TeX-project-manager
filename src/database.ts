@@ -55,4 +55,6 @@ export class Database {
     projects[project.full_path] = project;
     fs.writeFileSync(this.databasePath, JSON.stringify(projects, null, 2), 'utf8');
   }
+
+
 }

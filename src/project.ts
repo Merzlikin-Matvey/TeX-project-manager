@@ -44,7 +44,7 @@ export class Project {
       console.log(`Project ${this.name} already exists at ${this.full_path}`);
       return;
     }
-
+    console.log(`Creating project ${this.name} at ${this.full_path}`);
     fs.mkdirSync(this.full_path, { recursive: true });
     const templateManager = new TemplateManager();
     const database = new Database();
@@ -57,5 +57,63 @@ export class Project {
     } else {
       vscode.window.showErrorMessage(`Failed to create project ${this.name} at ${this.full_path}`);
     }
+  }
+
+  canProjectBeRenamed(newName: string) {
+    const database = new Database();
+
+    const testProjectWithENewNameExists = database.getProject(path.join(this.path, newName));
+    return !testProjectWithENewNameExists;
+  }
+
+
+  isProjectLocked(): boolean {
+    const folderPath = this.full_path;
+    console.log('folder path', folderPath);
+    const tempFolderPath = path.join(path.dirname(folderPath), `temp_${path.basename(folderPath)}`);
+    try {
+      fs.renameSync(folderPath, tempFolderPath);
+      fs.renameSync(tempFolderPath, folderPath);
+      return false;
+    } catch (error) {
+      return true;
+    }
+  }
+
+  async editName(newName: string) {
+    const database = new Database();
+
+    if (!newName) {
+      console.log('Project name is not defined');
+      return;
+    }
+
+    if (!this.canProjectBeRenamed(newName)) {
+      console.log(`Project ${newName} already exists at ${path.join(this.path, newName)}`);
+      return;
+    }
+
+    if (this.isProjectLocked()) {
+      console.log(`Project ${this.name} is locked`);
+      return;
+    }
+
+    const oldProjectPath = this.full_path;
+    const newProjectPath = path.join(this.path, newName);
+
+    database.removeProject(this);
+
+    console.log(oldProjectPath, newProjectPath);
+
+    fs.renameSync(oldProjectPath, newProjectPath);
+    this.name = newName;
+    this.full_path = newProjectPath;
+
+    console.log(this.name, this.full_path, this.full_tex_file_path);
+
+    database.addProject(this);
+
+
+
   }
 }

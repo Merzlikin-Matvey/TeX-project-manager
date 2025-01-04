@@ -9,7 +9,7 @@ import {Config} from "../user-config";
 
 export async function handleCreateProjectCommand() {
   const config = new Config();
-  const defaultFolderPath = config.defaultProjectPath;
+  const defaultFolderPath = config.defaultProjectsPath;
   const defaultTemplate = config.defaultTemplate;
 
   ensureFolderExists(defaultFolderPath);
@@ -79,7 +79,7 @@ async function createProject(projectName: string | undefined, folderUri: vscode.
     if (fs.existsSync(fullProjectPath)) {
       await handleExistingProject(fullProjectPath, projectName);
     } else {
-      const project = new Project(projectName, fullProjectPath, templateName);
+      const project = new Project(projectName, folderUri.fsPath, templateName);
       await project.create();
     }
   }

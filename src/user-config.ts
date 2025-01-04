@@ -13,8 +13,8 @@ export class Config {
     return this.config.get(key);
   }
 
-  get defaultProjectPath(): string {
-    const projectPath = this.get('defaultProjectPath');
+  get defaultProjectsPath(): string {
+    const projectPath = this.get('defaultProjectsPath');
     return projectPath ? projectPath.replace(/^~/, os.homedir()) : path.join(os.homedir(), 'tex_projects');
   }
 
