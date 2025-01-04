@@ -1,25 +1,34 @@
+import * as os from 'os';
+import * as path from 'path';
 import * as vscode from 'vscode';
 
-export function getUserConfig() {
-  return vscode.workspace.getConfiguration('texProjectManager');
-}
+export class Config {
+  private config: vscode.WorkspaceConfiguration;
 
-export function getDefaultFolderPath(): string {
-  const config = getUserConfig();
-  return config.get<string>('defaultProjectPath') || '~/tex_projects';
-}
+  constructor() {
+    this.config = vscode.workspace.getConfiguration('texProjectManager');
+  }
 
-export function getDefaultTemplatesPath(): string {
-  const config = getUserConfig();
-  return config.get<string>('defaultTemplatesPath') || '~/tex_templates';
-}
+  get(key: string): any {
+    return this.config.get(key);
+  }
 
-export function getDefaultTemplate(): string {
-  const config = getUserConfig();
-  return config.get<string>('defaultTemplate') || 'default';
-}
+  get defaultProjectPath(): string {
+    const projectPath = this.get('defaultProjectPath');
+    return projectPath ? projectPath.replace(/^~/, os.homedir()) : path.join(os.homedir(), 'tex_projects');
+  }
 
-export function getDefaultDatabasePath(): string {
-  const config = getUserConfig();
-  return config.get<string>('databasePath') || '~/tex_projects.json';
+  get defaultTemplatesPath(): string {
+    const templatesPath = this.get('defaultTemplatesPath');
+    return templatesPath ? templatesPath.replace(/^~/, os.homedir()) : path.join(os.homedir(), 'tex_templates');
+  }
+
+  get databasePath(): string {
+    const databasePath = this.get('databasePath');
+    return databasePath ? databasePath.replace(/^~/, os.homedir()) : path.join(os.homedir(), 'tex_projects.json');
+  }
+
+  get defaultTemplate(): string {
+    return this.get('defaultTemplate') || 'default';
+  }
 }

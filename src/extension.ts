@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import {Database} from "./database";
 import {handleCreateProjectCommand} from "./handlers/create-project-handler";
 import {handleOpenProjectsListCommand} from "./handlers/open-projects-handler";
-import {getDefaultDatabasePath} from "./user-config";
+
 
 
 export function activate(context: vscode.ExtensionContext) {

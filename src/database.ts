@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { Project } from './project';
-import {getDefaultDatabasePath} from "./user-config";
+import {Config} from "./user-config";
 
 export interface Projects {
   [key: string]: Project;
@@ -10,7 +10,9 @@ export class Database {
   private readonly databasePath: string;
 
   constructor(databasePath?: string) {
-    this.databasePath = databasePath || getDefaultDatabasePath();
+    const config = new Config();
+    this.databasePath = databasePath || config.databasePath;
+    console.log(this.databasePath);
     this.createDatabase();
   }
 

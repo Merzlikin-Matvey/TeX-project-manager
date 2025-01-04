@@ -1,5 +1,5 @@
 import {Database} from "../database";
-import vscode from "vscode";
+import * as vscode from 'vscode';
 
 export async function handleOpenProjectsListCommand() {
   const database = new Database();

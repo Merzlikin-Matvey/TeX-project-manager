@@ -1,20 +1,16 @@
-import vscode from "vscode";
-import fs from "fs";
-import path from "path";
-import os from "os";
+import * as fs from "fs";
+import * as path from "path";
+import * as vscode from "vscode";
 import { exec } from "child_process";
 import { Database } from "../database";
 import { Project } from "../project";
 import { TemplateManager } from "../templates";
-import {
-  getDefaultFolderPath,
-  getDefaultTemplate,
-  getDefaultTemplatesPath
-} from "../user-config";
+import {Config} from "../user-config";
 
 export async function handleCreateProjectCommand() {
-  const defaultFolderPath = getDefaultFolderPath().replace('~', os.homedir());
-  const defaultTemplate = getDefaultTemplate();
+  const config = new Config();
+  const defaultFolderPath = config.defaultProjectPath;
+  const defaultTemplate = config.defaultTemplate;
 
   ensureFolderExists(defaultFolderPath);
   ensureTemplatesExist();
@@ -51,8 +47,10 @@ function ensureFolderExists(folderPath: string) {
 }
 
 function ensureTemplatesExist() {
-  const templatesPath = getDefaultTemplatesPath();
+  const config = new Config();
+  const templatesPath = config.defaultTemplatesPath;
   const templateManager = new TemplateManager();
+  console.log(templatesPath);
   if (!fs.existsSync(templatesPath)) {
     templateManager.createTemplateFolder();
     vscode.window.showInformationMessage(`Created templates folder: ${templatesPath}`);
@@ -61,12 +59,17 @@ function ensureTemplatesExist() {
 
 async function showQuickPickOptions(projectName: string | undefined, folderUri: vscode.Uri | undefined, templateName: string | undefined, defaultFolderPath: string) {
   const options = [
+    { label: '$(debug-start) Create project' },
     { label: '$(pencil) Enter Project Name', description: `Project name: ${projectName || 'Type the name of the new project'}` },
-    { label: '$(file-directory) Select Folder', description: `Selected folder: ${folderUri?.fsPath || defaultFolderPath}` },
     { label: '$(file-code) Select Template', description: `Selected template: ${templateName}` },
-    { label: '$(debug-start) Create project' }
+    { label: '$(file-directory) Select Folder', description: `Selected folder: ${folderUri?.fsPath || defaultFolderPath}` },
   ];
-  return vscode.window.showQuickPick(options, {placeHolder: 'Select an option', ignoreFocusOut: true});
+
+  if (!projectName) {
+    options.shift();
+  }
+
+  return vscode.window.showQuickPick(options, { placeHolder: 'Select an option', ignoreFocusOut: true });
 }
 
 async function createProject(projectName: string | undefined, folderUri: vscode.Uri | undefined, templateName: string | undefined) {

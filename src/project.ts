@@ -1,8 +1,8 @@
 import * as path from 'path';
-import fs from "fs";
+import * as fs from 'fs';
+import * as vscode from 'vscode';
 import {TemplateManager} from "./templates";
 import {Database} from "./database";
-import * as vscode from 'vscode';
 
 export class Project {
   name: string;
