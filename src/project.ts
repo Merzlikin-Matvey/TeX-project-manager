@@ -112,8 +112,39 @@ export class Project {
     console.log(this.name, this.full_path, this.full_tex_file_path);
 
     database.addProject(this);
+  }
 
+  editPath(newProjectPath: string) {
+    const database = new Database();
+    if (!newProjectPath) {
+      console.log('Project path is not defined');
+      return;
+    }
 
+    const newFullProjectPath = path.join(newProjectPath, this.name);
 
+    if (fs.existsSync(newFullProjectPath)) {
+      console.log(`Project already exists at ${newProjectPath}`);
+      return;
+    }
+
+    if (this.isProjectLocked()) {
+      console.log(`Project ${this.full_path} is locked`);
+      return;
+    }
+
+    const oldProjectPath = this.full_path;
+    const oldFullProjectPath = this.full_path;
+
+    database.removeProject(this);
+
+    fs.renameSync(oldFullProjectPath, newFullProjectPath);
+    console.log("oldProjectPath, newProjectPath");
+    console.log(oldProjectPath, newProjectPath);
+    this.path = newProjectPath;
+    this.full_path = path.join(this.path, this.name);
+    this.full_tex_file_path = path.join(this.full_path, this.tex_file_name);
+
+    database.addProject(this);
   }
 }

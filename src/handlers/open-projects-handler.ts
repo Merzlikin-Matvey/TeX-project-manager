@@ -1,5 +1,6 @@
 import { Database } from "../database";
 import * as vscode from 'vscode';
+import * as fs from "node:fs";
 
 async function editProjectName(projectPath: string) {
   const database = new Database();
@@ -27,6 +28,29 @@ async function editProjectName(projectPath: string) {
   }
 }
 
+async function editProjectPath(projectPath: string) {
+  const database = new Database();
+  const project = database.getProject(projectPath);
+
+  const newProjectUri = await vscode.window.showOpenDialog({
+    canSelectFolders: true,
+    canSelectFiles: false,
+    canSelectMany: false,
+    openLabel: 'Select new project path'
+  });
+
+  if (newProjectUri && newProjectUri[0]) {
+    const newProjectPath = newProjectUri[0].fsPath;
+
+    if (project?.isProjectLocked()) {
+      vscode.window.showErrorMessage(`Project ${project.full_path} is now locked`);
+    }
+    else {
+      project?.editPath(newProjectPath);
+      vscode.window.showInformationMessage(`Project path changed to ${newProjectPath}`);
+    }
+  }
+}
 
 async function editProject(projectPath: string) {
   const database = new Database();
@@ -34,7 +58,7 @@ async function editProject(projectPath: string) {
 
   const projectItems = [
     { label: 'Name', value: project?.name },
-    { label: 'Full Path', value: project?.full_path },
+    { label: 'Path', value: project?.path },
   ];
 
   const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
@@ -47,6 +71,10 @@ async function editProject(projectPath: string) {
     if (selected && selected.label === 'Name') {
       quickPick.hide();
       editProjectName(projectPath);
+    }
+    else if (selected && selected.label === 'Path') {
+      quickPick.hide();
+      editProjectPath(projectPath);
     }
   });
 
