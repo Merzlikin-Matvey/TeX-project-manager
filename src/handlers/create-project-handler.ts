@@ -9,7 +9,7 @@ import {Config} from "../user-config";
 
 export async function handleCreateProjectCommand() {
   const config = new Config();
-  const defaultFolderPath = config.defaultProjectsPath;
+  const defaultFolderPath = config.projectsPath;
   const defaultTemplate = config.defaultTemplate;
 
   ensureFolderExists(defaultFolderPath);
@@ -48,7 +48,7 @@ function ensureFolderExists(folderPath: string) {
 
 function ensureTemplatesExist() {
   const config = new Config();
-  const templatesPath = config.defaultTemplatesPath;
+  const templatesPath = config.templatesPath;
   const templateManager = new TemplateManager();
   console.log(templatesPath);
   if (!fs.existsSync(templatesPath)) {

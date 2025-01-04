@@ -1,3 +1,6 @@
+## [0.2.0] - 2024.11.12
+- Added function to open existing projects
+
 ## [0.1.0] - 2024-10-26
 - First stable release
 - Use the `Ctrl+Alt+C` shortcut to create a new project

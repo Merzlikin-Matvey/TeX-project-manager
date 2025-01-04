@@ -27,7 +27,7 @@ This extension adds the following settings:
 ## Release Notes
 
 ### 0.2.0
-- Добавлена функция открытия существующих проектов.
+- Added function to open existing projects
 
 ### 0.1.0
 

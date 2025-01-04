@@ -3,7 +3,7 @@
   "displayName": "TeX project manager",
   "description": "Extension for managing LaTeX projects in VS Code",
   "publisher": "Matvey",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "engines": {
     "vscode": "^1.94.0"
   },
@@ -21,12 +21,12 @@
       "type": "object",
       "title": "TeX Project Manager Configuration",
       "properties": {
-        "texProjectManager.defaultProjectsPath": {
+        "texProjectManager.projectsPath": {
           "type": "string",
           "default": "~/tex_projects",
           "description": "Path to the folder where projects will be created"
         },
-        "texProjectManager.defaultTemplatesPath": {
+        "texProjectManager.templatesPath": {
           "type": "string",
           "default": "~/tex_templates",
           "description": "Path to the folder where templates are stored"

@@ -1,13 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as os from 'os';
 import * as vscode from "vscode";
+import {Config} from "./user-config";
 
 export class TemplateManager {
     private readonly templatesPath: string;
 
     constructor() {
-        this.templatesPath = path.join(os.homedir(), 'tex_templates');
+        const config = new Config();
+        this.templatesPath = config.templatesPath;
     }
 
     public getTemplatesPath(): string {
