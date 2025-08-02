@@ -6,6 +6,7 @@ import { Database } from "../database";
 import { Project } from "../project";
 import { TemplateManager } from "../templates";
 import {Config} from "../user-config";
+import {	ProjectsDatabase } from '../new_database';
 
 export async function handleCreateProjectCommand() {
   const config = new Config();
@@ -101,11 +102,11 @@ async function handleExistingProject(fullProjectPath: string, projectName: strin
 }
 
 async function openExistingProject(fullProjectPath: string) {
-  const database = new Database();
-  const project = database.getProject(fullProjectPath);
+  const database = new ProjectsDatabase();
+  const project = await database.getProject(fullProjectPath);
   if (project) {
     project.updateLastOpened();
-    database.updateProject(project);
+    await database.updateProject(project);
     await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(fullProjectPath), { forceNewWindow: false });
   } else {
     vscode.window.showErrorMessage(`Project at ${fullProjectPath} not found in the database`);

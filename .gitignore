@@ -433,3 +433,6 @@ dist
 
 # Binary files
 *.vsix
+
+# Database files
+*.db

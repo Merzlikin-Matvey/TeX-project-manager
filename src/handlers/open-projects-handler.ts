@@ -1,10 +1,12 @@
 import { Database } from "../database";
 import * as vscode from 'vscode';
 import * as fs from "node:fs";
+import {	ProjectsDatabase } from '../new_database';
 
 async function editProjectName(projectPath: string) {
-  const database = new Database();
-  const project = database.getProject(projectPath);
+  console.log('editProjectName called with projectPath:', projectPath);
+  const database = new ProjectsDatabase();
+  const project = await database.getProject(projectPath);
 
   const projectName = await vscode.window.showInputBox({
     value: project?.name,
@@ -21,7 +23,7 @@ async function editProjectName(projectPath: string) {
       vscode.window.showErrorMessage(`Project ${projectName} already exists at ${project?.full_path}`);
     }
     else{
-      project?.editName(projectName);
+      await project?.editName(projectName);
       vscode.window.showInformationMessage(`Project name changed to ${projectName}`);
     }
 
@@ -29,8 +31,8 @@ async function editProjectName(projectPath: string) {
 }
 
 async function editProjectPath(projectPath: string) {
-  const database = new Database();
-  const project = database.getProject(projectPath);
+  const database = new ProjectsDatabase();
+  const project = await database.getProject(projectPath);
 
   const newProjectUri = await vscode.window.showOpenDialog({
     canSelectFolders: true,
@@ -53,8 +55,8 @@ async function editProjectPath(projectPath: string) {
 }
 
 async function editProject(projectPath: string) {
-  const database = new Database();
-  const project = database.getProject(projectPath);
+  const database = new ProjectsDatabase();
+  const project = await database.getProject(projectPath);
 
   const projectItems = [
     { label: 'Name', value: project?.name },
@@ -83,8 +85,8 @@ async function editProject(projectPath: string) {
 }
 
 export async function handleOpenProjectsListCommand() {
-  const database = new Database();
-  const projects = database.getProjects();
+  const database = new ProjectsDatabase();
+  const projects = await database.getProjects();
   const projectItems = Object.keys(projects).map(key => ({
     label: projects[key].name,
     description: projects[key].full_path,
@@ -101,7 +103,7 @@ export async function handleOpenProjectsListCommand() {
 
   quickPick.onDidTriggerItemButton(async (e) => {
     if (e.item.description) {
-      const project = database.getProject(e.item.description);
+      const project = await database.getProject(e.item.description);
       if (project) {
         quickPick.hide();
         await editProject(project.full_path);
@@ -112,10 +114,10 @@ export async function handleOpenProjectsListCommand() {
   quickPick.onDidAccept(async () => {
     const selectedProject = quickPick.selectedItems[0];
     if (selectedProject && selectedProject.description) {
-      const project = database.getProject(selectedProject.description);
+      const project = await database.getProject(selectedProject.description);
       if (project) {
         project.updateLastOpened();
-        database.updateProject(project);
+          await database.updateProject(project);
         await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(project.full_path), { forceNewWindow: false });
       } else {
         vscode.window.showErrorMessage(`Project at ${selectedProject.description} not found in the database`);

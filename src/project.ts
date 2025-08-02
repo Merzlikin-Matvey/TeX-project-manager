@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import {TemplateManager} from "./templates";
-import {Database} from "./database";
+import {	ProjectsDatabase } from './new_database';
 
 export class Project {
   name: string;
@@ -13,15 +13,21 @@ export class Project {
   template: string;
   last_opened: Date;
 
-  constructor(projectName: string, projectPath: string, projectTemplate: string, lastOpened?: Date) {
+  constructor(
+      projectName: string,
+      projectPath: string,
+      projectTemplate: string,
+      lastOpened?: Date,
+      full_path?: string,
+      full_tex_file_path?: string
+  ) {
     this.name = projectName;
     this.path = projectPath;
-    this.tex_file_name = `${projectName}.tex`;
     this.template = projectTemplate;
     this.last_opened = lastOpened || new Date();
-
-    this.full_path = path.join(this.path, this.name);
-    this.full_tex_file_path = path.join(this.full_path, this.tex_file_name);
+    this.tex_file_name = `${projectName}.tex`;
+    this.full_path = full_path || path.join(this.path, this.name);
+    this.full_tex_file_path = full_tex_file_path || path.join(this.full_path, this.tex_file_name);
   }
 
   updateLastOpened() {
@@ -47,9 +53,9 @@ export class Project {
     console.log(`Creating project ${this.name} at ${this.full_path}`);
     fs.mkdirSync(this.full_path, { recursive: true });
     const templateManager = new TemplateManager();
-    const database = new Database();
+    const database = new ProjectsDatabase();
     templateManager.moveTemplate(this.template, this.full_path, this.name);
-    database.addProject(this);
+    await database.addProject(this);
 
     if (fs.existsSync(this.full_tex_file_path)) {
       vscode.window.showInformationMessage(`Project ${this.name} created at ${this.full_path}`);
@@ -60,7 +66,7 @@ export class Project {
   }
 
   canProjectBeRenamed(newName: string) {
-    const database = new Database();
+    const database = new ProjectsDatabase();
 
     const testProjectWithENewNameExists = database.getProject(path.join(this.path, newName));
     return !testProjectWithENewNameExists;
@@ -81,7 +87,7 @@ export class Project {
   }
 
   async editName(newName: string) {
-    const database = new Database();
+    const database = new ProjectsDatabase();
 
     if (!newName) {
       console.log('Project name is not defined');
@@ -101,7 +107,7 @@ export class Project {
     const oldProjectPath = this.full_path;
     const newProjectPath = path.join(this.path, newName);
 
-    database.removeProject(this);
+    await database.removeProject(this);
 
     console.log(oldProjectPath, newProjectPath);
 
@@ -111,11 +117,11 @@ export class Project {
 
     console.log(this.name, this.full_path, this.full_tex_file_path);
 
-    database.addProject(this);
+    await database.addProject(this);
   }
 
-  editPath(newProjectPath: string) {
-    const database = new Database();
+  async editPath(newProjectPath: string) {
+    const database = new ProjectsDatabase();
     if (!newProjectPath) {
       console.log('Project path is not defined');
       return;
@@ -136,7 +142,7 @@ export class Project {
     const oldProjectPath = this.full_path;
     const oldFullProjectPath = this.full_path;
 
-    database.removeProject(this);
+    await database.removeProject(this);
 
     fs.renameSync(oldFullProjectPath, newFullProjectPath);
     console.log("oldProjectPath, newProjectPath");
@@ -145,6 +151,6 @@ export class Project {
     this.full_path = path.join(this.path, this.name);
     this.full_tex_file_path = path.join(this.full_path, this.tex_file_name);
 
-    database.addProject(this);
+    await database.addProject(this);
   }
 }
