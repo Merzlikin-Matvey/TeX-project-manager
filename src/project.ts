@@ -1,33 +1,34 @@
 import * as path from 'path';
+import { join } from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import {TemplateManager} from "./templates";
 import {	ProjectsDatabase } from './new_database';
 
 export class Project {
-  name: string;
-  path: string;
-  full_path: string;
-  tex_file_name: string;
-  full_tex_file_path: string;
-  template: string;
-  last_opened: Date;
+  name: string; // Name of the project and its folder
+  path: string; // Path to the project folder (not including projects name)
+  full_path: string; // Full path to the project folder (including projects name)
+  tex_file_name: string; // Name of the main TeX file (e.g., project_name.tex)
+  full_tex_file_path: string; // Full path to the main TeX file (e.g., /path/to/project/project_name.tex)
+  template: string; // Template name used for the project
+  last_opened: Date; // Date when the project was last opened
 
   constructor(
-      projectName: string,
-      projectPath: string,
-      projectTemplate: string,
+      name: string,
+      path: string,
+      template: string,
       lastOpened?: Date,
       full_path?: string,
       full_tex_file_path?: string
   ) {
-    this.name = projectName;
-    this.path = projectPath;
-    this.template = projectTemplate;
+    this.name = name;
+    this.path = path;
+    this.template = template;
     this.last_opened = lastOpened || new Date();
-    this.tex_file_name = `${projectName}.tex`;
-    this.full_path = full_path || path.join(this.path, this.name);
-    this.full_tex_file_path = full_tex_file_path || path.join(this.full_path, this.tex_file_name);
+    this.tex_file_name = `${name}.tex`;
+    this.full_path = full_path || join(this.path, this.name);
+    this.full_tex_file_path = full_tex_file_path || join(this.full_path, this.tex_file_name);
   }
 
   updateLastOpened() {

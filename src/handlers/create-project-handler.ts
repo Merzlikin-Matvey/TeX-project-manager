@@ -81,7 +81,9 @@ async function createProject(projectName: string | undefined, folderUri: vscode.
       await handleExistingProject(fullProjectPath, projectName);
     } else {
       const project = new Project(projectName, folderUri.fsPath, templateName);
+      console.log('aboba')
       await project.create();
+      console.log(`Project created at: ${fullProjectPath}`);
     }
   }
 }

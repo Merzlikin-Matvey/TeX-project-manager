@@ -7,8 +7,8 @@ export interface Projects {
 }
 
 interface ProjectRow {
-  projectName: string;
-  projectPath: string;
+  name: string;
+  path: string;
   template: string;
   last_opened: Date;
   full_path: string;
@@ -25,10 +25,21 @@ export class ProjectsDatabase {
     this.db = new sqlite3.Database(
         this.databasePath,
         sqlite3.OPEN_READWRITE,
-        (err) => {
-          if (err) {throw err;}
-        }
+        err => { if (err) {throw err;} }
     );
+
+    this.db.serialize(() => {
+      this.db.run(`
+        CREATE TABLE IF NOT EXISTS projects (
+          name TEXT,
+          path TEXT,
+          template TEXT,
+          last_opened TEXT,
+          full_path TEXT PRIMARY KEY,
+          full_tex_file_path TEXT
+        )
+      `);
+    });
   }
 
   private getDatabasePath(): string {
@@ -41,18 +52,18 @@ export class ProjectsDatabase {
     }
   }
 
-  public getProject(projectPath: string) : Promise<Project | undefined> {
+  public getProject(full_path: string) : Promise<Project | undefined> {
     return new Promise((resolve, reject) => {
       this.db.get(
-        "SELECT * FROM projects WHERE path = ?",
-        [projectPath],
+        "SELECT * FROM projects WHERE full_path = ?",
+        [full_path],
         (err, row: ProjectRow | undefined) => {
           if (err) {
             reject(err);
           } else if (row) {
             const project = new Project(
-                row.projectName,
-                row.projectPath,
+                row.name,
+                row.path,
                 row.template,
                 new Date(row.last_opened),
                 row.full_path,
@@ -68,11 +79,14 @@ export class ProjectsDatabase {
   }
 
   public addProject(project: Project): Promise<void> {
+    console.log("Adding project:", project);
     return new Promise((resolve, reject) => {
-      this.db.run(
-          `INSERT OR REPLACE INTO projects
-         (projectName, projectPath, template, lastOpened, fullPath, fullTexFilePath)
-         VALUES (?, ?, ?, ?, ?, ?)`,
+      const sql = `
+        INSERT INTO projects
+        (name, path, template, last_opened, full_path, full_tex_file_path)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
+      this.db.run(sql,
           [
             project.name,
             project.path,
@@ -81,7 +95,14 @@ export class ProjectsDatabase {
             project.full_path,
             project.full_tex_file_path
           ],
-          (err) => err ? reject(err) : resolve()
+          (err) => {
+            if (err) {
+              console.error("Error adding project:", err);
+              reject(err);
+            } else {
+              resolve();
+            }
+          }
       );
     });
   }
@@ -89,7 +110,7 @@ export class ProjectsDatabase {
   public removeProject(project: Project): Promise<void> {
     return new Promise((resolve, reject) => {
       this.db.run(
-          "DELETE FROM projects WHERE fullPath = ?",
+          "DELETE FROM projects WHERE full_path = ?",
           [project.full_path],
           (err) => err ? reject(err) : resolve()
       );
@@ -98,28 +119,49 @@ export class ProjectsDatabase {
 
   public getProjects(): Promise<Projects> {
     return new Promise((resolve, reject) => {
+      const sql = 'SELECT * FROM projects';
+      console.log('>> Выполняем запрос:', sql);
       this.db.all(
-          "SELECT * FROM projects",
-          (err, rows: ProjectRow[]) => {
-            if (err) return reject(err);
-            const result: Projects = {};
-            rows.forEach(row => {
-              result[row.projectPath] = new Project(
-                  row.projectName,
-                  row.projectPath,
-                  row.template,
-                  new Date(row.last_opened),
-                  row.full_path,
-                  row.full_tex_file_path
-              );
-            });
-            resolve(result);
+        sql, (err, rows: ProjectRow[]) => {
+          if (err) {
+            console.error('!! Ошибка SELECT:', err);
+            return reject(err);
           }
+          console.log('>> Результат SELECT:', rows);
+          
+          const result: Projects = {};
+          rows.forEach(row => {
+            result[row.full_path] = new Project(
+                row.name,
+                row.path,
+                row.template,
+                new Date(row.last_opened),
+                row.full_path,
+                row.full_tex_file_path
+            );
+          });
+          resolve(result);
+        }
       );
     });
   }
 
   public updateProject(project: Project): Promise<void> {
-    return this.addProject(project);
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        `UPDATE projects
+         SET name = ?, path = ?, template = ?, last_opened = ?, full_tex_file_path = ?
+         WHERE full_path = ?`,
+        [
+          project.name,
+          project.path,
+          project.template,
+          project.last_opened.toISOString(),
+          project.full_tex_file_path,
+          project.full_path
+        ],
+        (err) => err ? reject(err) : resolve()
+      );
+    });
   }
 }
