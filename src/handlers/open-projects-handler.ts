@@ -14,9 +14,9 @@ async function editProjectName(projectPath: string) {
 
   if (projectName) {
     if (project?.isProjectLocked()) {
-      vscode.window.showErrorMessage(`Project ${projectName} is now locked`);
+      vscode.window.showErrorMessage(`Project ${projectName} is now open`);
     }
-    else if (!project?.canProjectBeRenamed(projectName)) {
+    else if (! await project?.canProjectBeRenamed(projectName)) {
       vscode.window.showErrorMessage(`Project ${projectName} already exists at ${project?.full_path}`);
     }
     else{

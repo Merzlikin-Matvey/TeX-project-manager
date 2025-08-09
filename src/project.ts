@@ -66,10 +66,12 @@ export class Project {
     }
   }
 
-  canProjectBeRenamed(newName: string) {
+  async canProjectBeRenamed(newName: string) {
     const database = new Database();
 
-    const testProjectWithENewNameExists = database.getProject(path.join(this.path, newName));
+    const testProjectWithENewNameExists = await database.getProject(path.join(this.path, newName));
+    console.log('new path', path.join(this.path, newName));
+    console.log(testProjectWithENewNameExists);
     return !testProjectWithENewNameExists;
   }
 
@@ -95,7 +97,7 @@ export class Project {
       return;
     }
 
-    if (!this.canProjectBeRenamed(newName)) {
+    if (!await this.canProjectBeRenamed(newName)) {
       console.log(`Project ${newName} already exists at ${path.join(this.path, newName)}`);
       return;
     }
