@@ -84,21 +84,16 @@ async function editProject(projectPath: string) {
 }
 
 export async function handleOpenProjectsListCommand() {
-  console.log('Opening projects list');
   const database = new ProjectsDatabase();
-  console.log('Opening projects list 2');
   const projects = await database.getProjects();
-  console.log('Projects retrieved:', projects);
   const projectItems = Object.keys(projects).map(key => ({
     label: projects[key].name,
     description: projects[key].full_path,
     lastOpened: new Date(projects[key].last_opened),
     buttons: [{ iconPath: new vscode.ThemeIcon('edit'), tooltip: 'Edit Project' }]
   }));
-  console.log('Project items created:', projectItems);
 
   projectItems.sort((a, b) => b.lastOpened.getTime() - a.lastOpened.getTime());
-  console.log(projectItems);
   const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem & { buttons: vscode.QuickInputButton[] }>();
   quickPick.items = projectItems;
   quickPick.placeholder = 'Select a project to open';

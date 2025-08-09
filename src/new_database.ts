@@ -29,7 +29,7 @@ export class ProjectsDatabase {
     );
 
     this.db.serialize(() => {
-      this.db.run(`
+      const sql = `
         CREATE TABLE IF NOT EXISTS projects (
           name TEXT,
           path TEXT,
@@ -38,7 +38,8 @@ export class ProjectsDatabase {
           full_path TEXT PRIMARY KEY,
           full_tex_file_path TEXT
         )
-      `);
+      `;
+      this.db.run(sql);
     });
   }
 
@@ -109,10 +110,18 @@ export class ProjectsDatabase {
 
   public removeProject(project: Project): Promise<void> {
     return new Promise((resolve, reject) => {
+      const sql = `DELETE FROM projects WHERE full_path = ?`;
       this.db.run(
-          "DELETE FROM projects WHERE full_path = ?",
+          sql,
           [project.full_path],
-          (err) => err ? reject(err) : resolve()
+          (err) => {
+            if (err) {
+              console.error('!! Ошибка удаления проекта:', err);
+              return reject(err);
+            }
+            console.log('>> Проект успешно удален:', project.full_path);
+            resolve();
+          }
       );
     });
   }
@@ -120,7 +129,6 @@ export class ProjectsDatabase {
   public getProjects(): Promise<Projects> {
     return new Promise((resolve, reject) => {
       const sql = 'SELECT * FROM projects';
-      console.log('>> Выполняем запрос:', sql);
       this.db.all(
         sql, (err, rows: ProjectRow[]) => {
           if (err) {
@@ -148,10 +156,14 @@ export class ProjectsDatabase {
 
   public updateProject(project: Project): Promise<void> {
     return new Promise((resolve, reject) => {
+      const sql = `
+        UPDATE projects
+        SET name = ?, path = ?, template = ?, last_opened = ?, full_tex_file_path = ?
+        WHERE full_path = ?
+      `;
+
       this.db.run(
-        `UPDATE projects
-         SET name = ?, path = ?, template = ?, last_opened = ?, full_tex_file_path = ?
-         WHERE full_path = ?`,
+        sql,
         [
           project.name,
           project.path,
@@ -160,7 +172,14 @@ export class ProjectsDatabase {
           project.full_tex_file_path,
           project.full_path
         ],
-        (err) => err ? reject(err) : resolve()
+        (err) => {
+          if (err) {
+            console.error('!! Ошибка обновления проекта:', err);
+            return reject(err);
+          }
+          console.log('>> Проект успешно обновлен:', project.full_path);
+          resolve();
+        }
       );
     });
   }

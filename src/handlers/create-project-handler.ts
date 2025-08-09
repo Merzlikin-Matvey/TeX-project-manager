@@ -2,7 +2,6 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import { exec } from "child_process";
-import { Database } from "../database";
 import { Project } from "../project";
 import { TemplateManager } from "../templates";
 import {Config} from "../user-config";
@@ -81,9 +80,7 @@ async function createProject(projectName: string | undefined, folderUri: vscode.
       await handleExistingProject(fullProjectPath, projectName);
     } else {
       const project = new Project(projectName, folderUri.fsPath, templateName);
-      console.log('aboba')
       await project.create();
-      console.log(`Project created at: ${fullProjectPath}`);
     }
   }
 }
