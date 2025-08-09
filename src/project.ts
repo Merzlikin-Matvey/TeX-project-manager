@@ -3,7 +3,7 @@ import { join } from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import {TemplateManager} from "./templates";
-import {	ProjectsDatabase } from './new_database';
+import {	Database } from './database';
 
 export class Project {
   name: string; // Name of the project and its folder
@@ -54,7 +54,7 @@ export class Project {
     console.log(`Creating project ${this.name} at ${this.full_path}`);
     fs.mkdirSync(this.full_path, { recursive: true });
     const templateManager = new TemplateManager();
-    const database = new ProjectsDatabase();
+    const database = new Database();
     templateManager.moveTemplate(this.template, this.full_path, this.name);
     await database.addProject(this);
 
@@ -67,7 +67,7 @@ export class Project {
   }
 
   canProjectBeRenamed(newName: string) {
-    const database = new ProjectsDatabase();
+    const database = new Database();
 
     const testProjectWithENewNameExists = database.getProject(path.join(this.path, newName));
     return !testProjectWithENewNameExists;
@@ -88,7 +88,7 @@ export class Project {
   }
 
   async editName(newName: string) {
-    const database = new ProjectsDatabase();
+    const database = new Database();
 
     if (!newName) {
       console.log('Project name is not defined');
@@ -122,7 +122,7 @@ export class Project {
   }
 
   async editPath(newProjectPath: string) {
-    const database = new ProjectsDatabase();
+    const database = new Database();
     if (!newProjectPath) {
       console.log('Project path is not defined');
       return;

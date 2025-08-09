@@ -1,10 +1,8 @@
-import { Database } from "../database";
 import * as vscode from 'vscode';
-import * as fs from "node:fs";
-import {	ProjectsDatabase } from '../new_database';
+import {	Database } from '../database';
 
 async function editProjectName(projectPath: string) {
-  const database = new ProjectsDatabase();
+  const database = new Database();
   const project = await database.getProject(projectPath);
 
   const projectName = await vscode.window.showInputBox({
@@ -30,7 +28,7 @@ async function editProjectName(projectPath: string) {
 }
 
 async function editProjectPath(projectPath: string) {
-  const database = new ProjectsDatabase();
+  const database = new Database();
   const project = await database.getProject(projectPath);
 
   const newProjectUri = await vscode.window.showOpenDialog({
@@ -54,7 +52,7 @@ async function editProjectPath(projectPath: string) {
 }
 
 async function editProject(projectPath: string) {
-  const database = new ProjectsDatabase();
+  const database = new Database();
   const project = await database.getProject(projectPath);
 
   const projectItems = [
@@ -84,7 +82,7 @@ async function editProject(projectPath: string) {
 }
 
 export async function handleOpenProjectsListCommand() {
-  const database = new ProjectsDatabase();
+  const database = new Database();
   const projects = await database.getProjects();
   const projectItems = Object.keys(projects).map(key => ({
     label: projects[key].name,

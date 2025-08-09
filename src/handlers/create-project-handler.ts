@@ -5,7 +5,7 @@ import { exec } from "child_process";
 import { Project } from "../project";
 import { TemplateManager } from "../templates";
 import {Config} from "../user-config";
-import {	ProjectsDatabase } from '../new_database';
+import {	Database } from '../database';
 
 export async function handleCreateProjectCommand() {
   const config = new Config();
@@ -101,7 +101,7 @@ async function handleExistingProject(fullProjectPath: string, projectName: strin
 }
 
 async function openExistingProject(fullProjectPath: string) {
-  const database = new ProjectsDatabase();
+  const database = new Database();
   const project = await database.getProject(fullProjectPath);
   if (project) {
     project.updateLastOpened();
